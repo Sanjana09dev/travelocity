@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/user")
 public class UserController {
     private UserService appUserService;
+    private AppUserRepository appUserRepository;
 
-    public UserController(UserService appUserService) {
+    public UserController(UserService appUserService, AppUserRepository appUserRepository) {
         this.appUserService = appUserService;
+        this.appUserRepository = appUserRepository;
     }
     /*private AppUserRepository appUserRepository;
 
@@ -28,8 +30,16 @@ public class UserController {
 
 
     @PostMapping("/createUser")
+    public ResponseEntity<?> createUser(@RequestBody AppUserDto dto){
 
-    public ResponseEntity<AppUserDto> createUser(@RequestBody AppUserDto dto){
+  //  public ResponseEntity<AppUserDto> createUser(@RequestBody AppUserDto dto){
+
+        if (appUserRepository.existsByEmail(dto.getEmail())) {
+            return new ResponseEntity<>("Email Exists", HttpStatus.BAD_REQUEST);
+        }
+        if (appUserRepository.existsByUsername(dto.getUsername())) {
+            return new ResponseEntity<>("Username Exists", HttpStatus.BAD_REQUEST);
+        }
         AppUserDto appUserDto = appUserService.createUser(dto);
         return new ResponseEntity<>(appUserDto, HttpStatus.CREATED);
 
